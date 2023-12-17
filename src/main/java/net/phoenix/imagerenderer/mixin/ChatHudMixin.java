@@ -17,6 +17,12 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -54,9 +60,18 @@ public abstract class ChatHudMixin {
                 connection.setRequestMethod("GET");
                 connection.connect();
                 InputStream inputStream = connection.getInputStream();
+
+                BufferedImage inp = ImageIO.read(inputStream);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                ImageIO.write(inp, "PNG", outputStream);
+                inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+
                 NativeImage image = NativeImage.read(inputStream);
 
                 GameOptions options = MinecraftClient.getInstance().options;
+
+                Identifier e = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture("image", new NativeImageBackedTexture(image));
+                int current = ImageRenderer.current;
 
                 double chatWidth = options.getChatWidth().getValue();
                 double chatHeight = options.getChatHeightUnfocused().getValue();
@@ -77,16 +92,13 @@ public abstract class ChatHudMixin {
 
                 int newWidth = (int) (rawWidth * scale);
                 int newHeight = (int) (rawHeight * scale);
-
-                Identifier e = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture("image", new NativeImageBackedTexture(image));
-                int current = ImageRenderer.current;
                 ImageRenderer.imageCache.put(current, new ImageRenderer.ID(e, newWidth, newHeight));
                 ImageRenderer.current++;
                 TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
                 int lineHeight = textRenderer.fontHeight;
 
-                return Text.of(clean.substring(0, index + 1) + "\n[pictureimg][" + author + "][" + current + "]" + new String(new char[newHeight/lineHeight]).replace("\0", "\n"));
+                return Text.of(clean.substring(0, index + 1) + "\n[pictureimg][" + current + "]" + new String(new char[newHeight/lineHeight]).replace("\0", "\n"));
             } catch (IOException e) {
                 System.out.println("e");
                 e.printStackTrace();

@@ -1,5 +1,6 @@
 package net.phoenix.imagerenderer.mixin;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.OrderedText;
@@ -31,9 +32,9 @@ public abstract class DrawContextMixin {
         if (raw.startsWith("[pictureimg]")) {
             try {
                 String[] split = raw.split("]");
-                int id = Integer.parseInt(split[2].replace("[", ""));
+                int id = Integer.parseInt(split[1].replace("[", ""));
                 ImageRenderer.ID d = ImageRenderer.imageCache.get(id);
-                ImageRenderer.images.put(d.identifier, new ImageRenderer.Image(x, y, d.width, d.height));
+                ImageRenderer.images.put(d.identifier, new ImageRenderer.Image(x - MinecraftClient.getInstance().textRenderer.fontHeight, y, d.width, d.height));
 
                 cir.setReturnValue(20);
             } catch (Exception ignored) {
