@@ -1,9 +1,13 @@
 package net.phoenix.imagerenderer.mixin;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.hud.ChatHud;
+import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.option.SimpleOption;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.phoenix.imagerenderer.ImageRenderer;
@@ -51,11 +55,38 @@ public abstract class ChatHudMixin {
                 connection.connect();
                 InputStream inputStream = connection.getInputStream();
                 NativeImage image = NativeImage.read(inputStream);
+
+                GameOptions options = MinecraftClient.getInstance().options;
+
+                double chatWidth = options.getChatWidth().getValue();
+                double chatHeight = options.getChatHeightUnfocused().getValue();
+                Window window = MinecraftClient.getInstance().getWindow();
+                int windowWidth = window.getScaledWidth();
+                int windowHeight = window.getScaledHeight();
+
+                int chatWidthInPixels = (int) (windowWidth * chatWidth);
+                int chatHeightInPixels = (int) (windowHeight * chatHeight);
+
+                int rawWidth = image.getWidth();
+                int rawHeight = image.getHeight();
+
+                double widthScale = (double) chatWidthInPixels / rawWidth;
+                double heightScale = (double) chatHeightInPixels / rawHeight;
+
+                double scale = Math.min(widthScale, heightScale);
+
+                int newWidth = (int) (rawWidth * scale);
+                int newHeight = (int) (rawHeight * scale);
+
                 Identifier e = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture("image", new NativeImageBackedTexture(image));
                 int current = ImageRenderer.current;
-                ImageRenderer.imageCache.put(current, e);
+                ImageRenderer.imageCache.put(current, new ImageRenderer.ID(e, newWidth, newHeight));
                 ImageRenderer.current++;
-                return Text.of("[pictureimg][" + author + "][" + current + "]");
+                TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+
+                int lineHeight = textRenderer.fontHeight;
+
+                return Text.of(clean.substring(0, index + 1) + "\n[pictureimg][" + author + "][" + current + "]" + new String(new char[newHeight/lineHeight]).replace("\0", "\n"));
             } catch (IOException e) {
                 System.out.println("e");
                 e.printStackTrace();

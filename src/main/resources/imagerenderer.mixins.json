@@ -6,6 +6,8 @@
   "mixins": [
   ],
   "client": [
+    "ChatHudMixin",
+    "DrawContextMixin"
   ],
   "injectors": {
     "defaultRequire": 1

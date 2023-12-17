@@ -5,7 +5,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.OrderedText;
 import net.phoenix.imagerenderer.ImageRenderer;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,9 +24,6 @@ public abstract class DrawContextMixin {
         return builder.toString();
     }
 
-    @Shadow
-    public abstract int drawText(TextRenderer textRenderer, OrderedText text, int x, int y, int color, boolean shadow);
-
     @Inject(method = "drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/OrderedText;III)I", at = @At("RETURN"), cancellable = true)
     public void render(TextRenderer textRenderer, OrderedText text, int x, int y, int color, CallbackInfoReturnable<Integer> cir) {
 
@@ -36,7 +32,8 @@ public abstract class DrawContextMixin {
             try {
                 String[] split = raw.split("]");
                 int id = Integer.parseInt(split[2].replace("[", ""));
-                ImageRenderer.images.put(ImageRenderer.imageCache.get(id), new ImageRenderer.Image(x, y, 100, 100));
+                ImageRenderer.ID d = ImageRenderer.imageCache.get(id);
+                ImageRenderer.images.put(d.identifier, new ImageRenderer.Image(x, y, d.width, d.height));
 
                 cir.setReturnValue(20);
             } catch (Exception ignored) {

@@ -2,25 +2,26 @@
   "schemaVersion": 1,
   "id": "imagerenderer",
   "version": "${version}",
-
   "name": "ImageRenderer",
   "description": "",
   "authors": [],
-  "contact": {},
-
+  "contact": {
+    "repo": "https://github.com/PhoenixOrigin/ImageRenderer"
+  },
   "license": "All-Rights-Reserved",
   "icon": "assets/imagerenderer/icon.png",
-
   "environment": "client",
-  "entrypoints": {},
-
-      "mixins": [
-        "imagerenderer.mixins.json"
-      ],
-
+  "entrypoints": {
+    "client": [
+      "net.phoenix.imagerenderer.ImageRenderer"
+    ]
+  },
+  "mixins": [
+    "imagerenderer.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=${loader_version}",
-        "fabric": "*",
+    "fabric": "*",
     "minecraft": "${minecraft_version}"
   }
 }

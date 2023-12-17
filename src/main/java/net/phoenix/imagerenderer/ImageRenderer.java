@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class ImageRenderer implements ClientModInitializer {
 
-    public static HashMap<Integer, Identifier> imageCache = new HashMap<Integer, Identifier>();
+    public static HashMap<Integer, ID> imageCache = new HashMap<>();
     public static int current = 0;
     public static HashMap<Identifier, Image> images = new HashMap<>();
 
@@ -72,6 +72,18 @@ public class ImageRenderer implements ClientModInitializer {
         public Image(int x, int y, int width, int height) {
             this.x = x;
             this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+    }
+
+    public static class ID {
+        public Identifier identifier;
+        public int width;
+        public int height;
+
+        public ID(Identifier identifier, int width, int height) {
+            this.identifier = identifier;
             this.width = width;
             this.height = height;
         }
