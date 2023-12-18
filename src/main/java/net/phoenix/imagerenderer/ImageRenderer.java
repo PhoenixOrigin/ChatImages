@@ -51,7 +51,6 @@ public class ImageRenderer implements ClientModInitializer {
             Window window = client.getWindow();
             double chatScale = client.options.getChatScale().getValue();
             double chatHeightUnfocused = client.options.getChatHeightUnfocused().getValue();
-
             int chatX = 2;
             int chatY = (int) (window.getScaledHeight() - 14 - 14 * chatHeightUnfocused * chatScale);
 

@@ -74,7 +74,7 @@ public abstract class ChatHudMixin {
                 int current = ImageRenderer.current;
 
                 double chatWidth = options.getChatWidth().getValue();
-                double chatHeight = options.getChatHeightUnfocused().getValue();
+                double chatHeight = options.getChatHeightFocused().getValue();
                 Window window = MinecraftClient.getInstance().getWindow();
                 int windowWidth = window.getScaledWidth();
                 int windowHeight = window.getScaledHeight();
@@ -82,11 +82,16 @@ public abstract class ChatHudMixin {
                 int chatWidthInPixels = (int) (windowWidth * chatWidth);
                 int chatHeightInPixels = (int) (windowHeight * chatHeight);
 
+                TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+                int lineHeight = textRenderer.fontHeight;
+
+                int maxLines = chatHeightInPixels / lineHeight;
+
                 int rawWidth = image.getWidth();
                 int rawHeight = image.getHeight();
 
                 double widthScale = (double) chatWidthInPixels / rawWidth;
-                double heightScale = (double) chatHeightInPixels / rawHeight;
+                double heightScale = (double) maxLines / (double) (rawHeight / lineHeight); // Scale height based on lines, not pixels
 
                 double scale = Math.min(widthScale, heightScale);
 
@@ -94,11 +99,9 @@ public abstract class ChatHudMixin {
                 int newHeight = (int) (rawHeight * scale);
                 ImageRenderer.imageCache.put(current, new ImageRenderer.ID(e, newWidth, newHeight));
                 ImageRenderer.current++;
-                TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
-                int lineHeight = textRenderer.fontHeight;
-
-                return Text.of(clean.substring(0, index + 1) + "\n[pictureimg][" + current + "]" + new String(new char[newHeight/lineHeight]).replace("\0", "\n"));
+                int scaledHeightInLines = (int) Math.ceil((double) newHeight / lineHeight);
+                return Text.of(clean.substring(0, index + 1) + "\n[pictureimg][start][" + current + "]" + new String(new char[scaledHeightInLines]).replace("\0", "\n") + "[pictureimg][end][" + current + "]");
             } catch (IOException e) {
                 System.out.println("e");
                 e.printStackTrace();

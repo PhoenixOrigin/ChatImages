@@ -32,11 +32,18 @@ public abstract class DrawContextMixin {
         if (raw.startsWith("[pictureimg]")) {
             try {
                 String[] split = raw.split("]");
-                int id = Integer.parseInt(split[1].replace("[", ""));
-                ImageRenderer.ID d = ImageRenderer.imageCache.get(id);
-                ImageRenderer.images.put(d.identifier, new ImageRenderer.Image(x - MinecraftClient.getInstance().textRenderer.fontHeight, y, d.width, d.height));
-
-                cir.setReturnValue(20);
+                int id = Integer.parseInt(split[2].replace("[", ""));
+                String type = split[1].replace("[", "");
+                if(type.equals("start")) {
+                    ImageRenderer.ID d = ImageRenderer.imageCache.get(id);
+                    ImageRenderer.images.put(d.identifier, new ImageRenderer.Image(x, y + (MinecraftClient.getInstance().textRenderer.fontHeight), d.width, d.height));
+                    cir.setReturnValue(20);
+                }
+                if(type.equals("end")) {
+                    ImageRenderer.ID d = ImageRenderer.imageCache.get(id);
+                    ImageRenderer.images.put(d.identifier, new ImageRenderer.Image(x, y - d.height + MinecraftClient.getInstance().textRenderer.fontHeight, d.width, d.height));
+                    cir.setReturnValue(20);
+                }
             } catch (Exception ignored) {
 
             }
